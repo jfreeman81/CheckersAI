@@ -7,3 +7,6 @@ C:\Users\crew2\OneDrive\Documents\Visual Studio 2015\Projects\Checkers\Checkers\
 C:\Users\crew2\Source\Repos\CheckersAI\Checkers\bin\Debug\Checkers.exe.config
 C:\Users\crew2\Source\Repos\CheckersAI\Checkers\obj\Debug\Checkers.exe
 C:\Users\crew2\Source\Repos\CheckersAI\Checkers\obj\Debug\Checkers.pdb
+C:\Users\crew2\Source\Repos\CheckersAI\Checkers\bin\Debug\Checkers.exe
+C:\Users\crew2\Source\Repos\CheckersAI\Checkers\bin\Debug\Checkers.pdb
+C:\Users\crew2\Source\Repos\CheckersAI\Checkers\obj\Debug\Checkers.csprojResolveAssemblyReference.cache
