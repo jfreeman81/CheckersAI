@@ -83,7 +83,7 @@ namespace Checkers
 
         public List<Move> GetLegalMoves(PieceColor player)
         {
-            PieceColor otherPlayer = Piece.GetOppositeColor(player);
+            PieceColor opposingColor = Piece.GetOppositeColor(player);
             var checkBoard = (player == PieceColor.White) ? FlipBoard() : boardState;
             var legalMoves = new List<Move>();
             for (int i = 0; i < BOARD_SIZE; i++)
@@ -91,27 +91,27 @@ namespace Checkers
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
                     var piece = boardState[i, j];
-                    if ((piece == null) || (piece.Owner == otherPlayer))
+                    if ((piece == null) || (piece.Owner == opposingColor))
                         continue;
 
                     int row = piece.Row;
                     int col = piece.Col;
 
-                    if (ForwardRightTileIsFree(row, col, otherPlayer, checkBoard))
+                    if (ForwardRightTileIsFree(row, col, opposingColor, checkBoard))
                     {
                         legalMoves.Add(new Move(piece, MoveDirection.ForwardRight));
                     }
-                    if (ForwardLeftTileIsFree(row, col, otherPlayer, checkBoard))
+                    if (ForwardLeftTileIsFree(row, col, opposingColor, checkBoard))
                     {
                         legalMoves.Add(new Move(piece, MoveDirection.ForwardLeft));
                     }
                     if (piece.IsKing)
                     {
-                        if (BackLeftTileIsFree(row, col, otherPlayer, checkBoard))
+                        if (BackLeftTileIsFree(row, col, opposingColor, checkBoard))
                         {
                             legalMoves.Add(new Move(piece, MoveDirection.BackwardLeft));
                         }
-                        if (BackRightTileIsFree(row, col, otherPlayer, checkBoard))
+                        if (BackRightTileIsFree(row, col, opposingColor, checkBoard))
                         {
                             legalMoves.Add(new Move(piece, MoveDirection.BackwardRight));
                         }
@@ -123,30 +123,50 @@ namespace Checkers
 
         private static bool ForwardRightTileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
         {
-            return TileIsFree(row + 1, col + 1, opposingColor, board);
+            return TileIsFree(row + 1, col + 1, opposingColor, board)
+                || TileCanBeJumped(row + 1, col + 1, opposingColor, board, MoveDirection.ForwardRight)
+                ;
         }
 
         private static bool ForwardLeftTileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
         {
-            return TileIsFree(row + 1, col - 1, opposingColor, board);
+            return TileIsFree(row + 1, col - 1, opposingColor, board)
+                || TileCanBeJumped(row + 1, col - 1, opposingColor, board, MoveDirection.ForwardLeft)
+                ;
         }
 
         private static bool BackLeftTileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
         {
-            return TileIsFree(row - 1, col + 1, opposingColor, board);
+            return TileIsFree(row - 1, col + 1, opposingColor, board)
+                || TileCanBeJumped(row - 1, col + 1, opposingColor, board, MoveDirection.BackwardLeft)
+                ;
         }
 
         private static bool BackRightTileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
         {
-            return TileIsFree(row - 1, col - 1, opposingColor, board);
+            return TileIsFree(row - 1, col - 1, opposingColor, board)
+                || TileCanBeJumped(row - 1, col - 1, opposingColor, board, MoveDirection.BackwardRight)
+                ;
         }
 
 
         private static bool TileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
         {
-            return TileIsInBounds(row, col)
-                && (board[row, col] == null || ((board[row, col].Owner == opposingColor) && (board[row, col] == null)))
+            return TileIsInBounds(row, col) && board[row, col] == null;
+        }
+
+        private static bool TileCanBeJumped(int row, int col, PieceColor opposingColor, Piece[,] board, MoveDirection direction)
+        {
+            int rowMove = (direction == MoveDirection.ForwardRight || direction == MoveDirection.ForwardLeft) ? 1 : -1;
+            int colMove = (direction == MoveDirection.ForwardRight || direction == MoveDirection.BackwardLeft) ? 1 : -1;
+            return TileIsOpposingColor(row, col, opposingColor, board) 
+                && TileIsFree(row + rowMove, col + colMove, opposingColor, board)
                 ;
+        }
+
+        private static bool TileIsOpposingColor(int row, int col, PieceColor opposingColor, Piece[,] board)
+        {
+            return (board[row, col].Owner == opposingColor);
         }
 
         private static bool TileIsInBounds(int row, int col)
