@@ -91,7 +91,7 @@ namespace Checkers
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
                     var piece = boardState[i, j];
-                    if ((piece == null) || piece.Owner == otherPlayer)
+                    if ((piece == null) || (piece.Owner == otherPlayer))
                         continue;
 
                     int row = piece.Row;
@@ -167,10 +167,10 @@ namespace Checkers
                 int row = BOARD_SIZE - i - 1;
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    int col = BOARD_SIZE - i - 1;
+                    int col = BOARD_SIZE - j - 1;
                     Piece pieceToCopy = boardState[row, col];
                     if (pieceToCopy != null)
-                        reversedBoard[i, j] = new Piece(pieceToCopy);
+                        reversedBoard[i, j] = new Piece(i, j, pieceToCopy.Owner); // Can't use copy constructor here since row/col is different
                 }
             }
 
