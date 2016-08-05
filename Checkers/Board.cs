@@ -24,7 +24,7 @@ namespace Checkers
 
         private void AddBlackPieces()
         {
-            bool beginRowWithPiece = true;
+            bool beginRowWithPiece = false; // Top left does not begin with a piece for black
             for (int i = 0; i < PIECES_DEPTH; i++)
             {
                 AddPiecesToRow(PieceColor.Black, i, beginRowWithPiece);
