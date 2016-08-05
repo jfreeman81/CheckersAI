@@ -1,6 +1,1 @@
-C:\Users\cthrash\Source\Repos\CheckersAI\Checkers\bin\Debug\Checkers.exe.config
-C:\Users\cthrash\Source\Repos\CheckersAI\Checkers\bin\Debug\Checkers.exe
-C:\Users\cthrash\Source\Repos\CheckersAI\Checkers\bin\Debug\Checkers.pdb
-C:\Users\cthrash\Source\Repos\CheckersAI\Checkers\obj\Debug\Checkers.csprojResolveAssemblyReference.cache
-C:\Users\cthrash\Source\Repos\CheckersAI\Checkers\obj\Debug\Checkers.exe
-C:\Users\cthrash\Source\Repos\CheckersAI\Checkers\obj\Debug\Checkers.pdb
+C:\Users\crew2\Source\Repos\CheckersAI\Checkers\bin\Debug\Checkers.exe.config

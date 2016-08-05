@@ -61,8 +61,8 @@ namespace Checkers
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
                     Piece tile = boardState[i, j];
-                    string pieceRep = GetTileRepresentation(tile);
-                    Console.Write("{0,3}", pieceRep);
+                    string tileRep = GetTileRepresentation(tile);
+                    Console.Write("{0,3}", tileRep);
                 }
                 Console.WriteLine();
             }
