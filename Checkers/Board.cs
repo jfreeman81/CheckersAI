@@ -78,7 +78,30 @@ namespace Checkers
 
         public bool MakeMove(Move move)
         {
-            return false;
+            PieceColor thisColor = move.Piece.Owner;
+            if (!GetLegalMoves(thisColor).Contains(move))
+                return false;
+
+            var tempBoard = (move.Piece.Owner == PieceColor.White) ? FlipBoard() : boardState;
+            var opposingColor = Piece.GetOppositeColor(move.Piece.Owner);
+            int rowMove = GetRowMoveAmount(move.Direction);
+            int colMove = GetColMoveAmount(move.Direction);
+
+            if (TileCanBeJumped(move.Piece.Row + rowMove, move.Piece.Col + colMove, opposingColor, boardState, move.Direction))
+            {
+                // move piece two times further
+                // capture opposing piece
+                // check that piece can't jump again
+                if (PieceCanJump(move.Piece, opposingColor, boardState))
+                {
+                    // get move from player to jump
+                }
+            }
+            else
+            {
+                // move piece
+            }
+            return true;
         }
 
         public List<Move> GetLegalMoves(PieceColor player)
@@ -157,8 +180,8 @@ namespace Checkers
 
         private static bool TileCanBeJumped(int row, int col, PieceColor opposingColor, Piece[,] board, MoveDirection direction)
         {
-            int rowMove = (direction == MoveDirection.ForwardRight || direction == MoveDirection.ForwardLeft) ? 1 : -1;
-            int colMove = (direction == MoveDirection.ForwardRight || direction == MoveDirection.BackwardLeft) ? 1 : -1;
+            int rowMove = GetRowMoveAmount(direction);
+            int colMove = GetColMoveAmount(direction);
             return TileIsOpposingColor(row, col, opposingColor, board) 
                 && TileIsFree(row + rowMove, col + colMove, opposingColor, board)
                 ;
@@ -176,6 +199,29 @@ namespace Checkers
                 && col >= 0
                 && col < BOARD_SIZE
                 ;
+        }
+
+        private static bool PieceCanJump(Piece piece, PieceColor opposingColor, Piece[,] board)
+        {
+            if (TileCanBeJumped(piece.Row + 1, piece.Col + 1, opposingColor, board, MoveDirection.ForwardRight)
+                || TileCanBeJumped(piece.Row + 1, piece.Col - 1, opposingColor, board, MoveDirection.ForwardLeft))
+                return true;
+            else if (piece.IsKing
+                && (TileCanBeJumped(piece.Row - 1, piece.Col - 1, opposingColor, board, MoveDirection.BackwardRight)
+                || TileCanBeJumped(piece.Row - 1, piece.Col + 1, opposingColor, board, MoveDirection.BackwardLeft)))
+                return true;
+            else
+                return false;
+        }
+
+        private static int GetRowMoveAmount(MoveDirection direction)
+        {
+            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.ForwardLeft) ? 1 : -1;
+        }
+
+        private static int GetColMoveAmount(MoveDirection direction)
+        {
+            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.BackwardLeft) ? 1 : -1;
         }
 
         public Piece[,] FlipBoard()

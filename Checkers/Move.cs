@@ -8,8 +8,8 @@ namespace Checkers
 {
     public class Move
     {
-        Piece Piece { get; set; }
-        MoveDirection Direction { get; set; }
+        public Piece Piece { get; set; }
+        public MoveDirection Direction { get; set; }
 
         public Move(Piece piece, MoveDirection direction)
         {
