@@ -71,8 +71,10 @@ namespace Checkers
         {
             if (piece == null)
                 return "-";
+            else if (piece.Owner == PieceColor.Black)
+                return piece.IsKing ? "B*" : "B";
             else
-                return (piece.Owner == PieceColor.Black) ? "B" : "W";
+                return piece.IsKing ? "W*" : "W";
         }
 
         //public bool MakeMove(Move move)
