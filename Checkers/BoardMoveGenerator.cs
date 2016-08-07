@@ -80,7 +80,7 @@ namespace Checkers
         {
             _moves = new List<Move>();
             var tmpMoves = new List<Move>();
-            GenerateJumps(Row, Col, new HashSet<Tuple<int, int>>(), new List<MoveDirection>(), new List<Move>());
+            GenerateJumps(Row, Col, new HashSet<Tuple<int, int>>(), new List<MoveDirection>(), tmpMoves);
             int maxDirectionCount = 0;
             foreach (var move in tmpMoves)
                 maxDirectionCount = Math.Max(maxDirectionCount, move.Direction.Count);

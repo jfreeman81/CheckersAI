@@ -27,5 +27,16 @@ namespace Checkers
             return (color == PieceColor.White) ? PieceColor.Black : PieceColor.White;
         }
 
+        public override bool Equals(object obj)
+        {
+            var piece = obj as Piece;
+            return piece != null
+                && this.Row == piece.Row
+                && this.Col == piece.Col
+                && this.Owner == piece.Owner
+                && this.IsKing == piece.IsKing
+                ;
+        }
+
     }
 }
