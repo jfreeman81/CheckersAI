@@ -106,7 +106,8 @@ namespace Checkers
         public List<Move> GetLegalMoves(PieceColor player)
         {
             PieceColor opposingColor = Piece.GetOppositeColor(player);
-            var checkBoard = (player == PieceColor.White) ? FlipBoard() : this;
+            bool useFlippedBoard = player == PieceColor.White;
+            var checkBoard = useFlippedBoard ? FlipBoard() : this;
             var legalMoves = new List<Move>();
             for (int i = 0; i < BOARD_SIZE; i++)
             {
@@ -115,7 +116,13 @@ namespace Checkers
                     var piece = checkBoard.GetPiece(i, j);
                     if ((piece == null) || (piece.Owner == opposingColor))
                         continue;
-                    legalMoves.AddRange(new BoardMoveGenerator(checkBoard, piece.Row, piece.Col).Moves);
+                    var moves = new BoardMoveGenerator(checkBoard, piece.Row, piece.Col).Moves;
+                    if (useFlippedBoard)
+                    {
+                        foreach (var move in moves)
+                            piece.Row = BOARD_SIZE - piece.Row - 1; // must be flipped back along the x axis
+                    }
+                    legalMoves.AddRange(moves);
                 }
             }
             return legalMoves;
