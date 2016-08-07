@@ -8,50 +8,49 @@ namespace Checkers
 {
     public class Board
     {
-        private static readonly int BOARD_SIZE = 8;
-        private static readonly int PIECES_DEPTH = 3;
+        public static readonly int BOARD_SIZE = 8;
+        public static readonly int PIECES_DEPTH = 3;
         private Piece[,] boardState { get; set; }
 
         public Board()
         {
             boardState = new Piece[BOARD_SIZE, BOARD_SIZE];
-
-            List<Piece> row = new List<Piece>();
-
-            AddBlackPieces();
-            AddWhitePieces();
         }
 
-        private void AddBlackPieces()
+        /// <summary>
+        /// Places a piece on the board. Note: This does not
+        /// take in the actual piece object to ensure that we never end up 
+        /// with other places being able to modify the pieces on the board.
+        /// </summary>
+        /// <param name="color">color of the piece</param>
+        /// <param name="row">row the piece will be placed</param>
+        /// <param name="col">column the piece will be placed</param>
+        public void PlacePiece(PieceColor color, int row, int col)
         {
-            bool beginRowWithPiece = false; // Top left does not begin with a piece for black
-            for (int i = 0; i < PIECES_DEPTH; i++)
-            {
-                AddPiecesToRow(PieceColor.Black, i, beginRowWithPiece);
-                beginRowWithPiece = !beginRowWithPiece;
-            }
+            if (!TileIsInBounds(row, col) || (boardState[row, col] != null))
+                throw new ArgumentException(String.Format("Error: Piece was attempted to be placed at invalid position Row: {0}, Col: {1}", row, col));
+            boardState[row, col] = new Piece(row, col, color);
         }
 
-        private void AddWhitePieces()
+        /// <summary>
+        /// Removes the piece from the board.
+        /// Throws an exception if a piece is not there
+        /// or the position is out of bounds.
+        /// </summary>
+        /// <param name="row">row the piece will be placed</param>
+        /// <param name="col">column the piece will be placed</param>
+        public void RemovePiece(int row, int col)
         {
-            bool beginRowWithPiece = true;
-            for (int i = 0; i < PIECES_DEPTH; i++)
-            {
-                int row = BOARD_SIZE - i- 1; // white starts at the bottom
-                AddPiecesToRow(PieceColor.White, row, beginRowWithPiece);
-                beginRowWithPiece = !beginRowWithPiece;
-            }
+            if (!TileIsInBounds(row, col) || (boardState[row, col] == null))
+                throw new ArgumentException(String.Format("Error: Attempted to remove at invalid position Row: {0}, Col: {1}", row, col));
+            boardState[row, col] = null;
         }
 
-        private void AddPiecesToRow(PieceColor color, int row, bool beginsWithPiece)
+        public Piece GetPiece(int row, int col)
         {
-            bool placePiece = beginsWithPiece;
-            for (int j = 0; j < BOARD_SIZE; j++)
-            {
-                if (placePiece)
-                    boardState[row, j] = new Piece(row, j, color);
-                placePiece = !placePiece;
-            }
+            if (!TileIsInBounds(row, col))
+                throw new ArgumentException("Tile position is out of bounds.");
+            return boardState[row, col];
         }
 
         public void Print()
@@ -76,120 +75,73 @@ namespace Checkers
                 return (piece.Owner == PieceColor.Black) ? "B" : "W";
         }
 
-        public bool MakeMove(Move move)
-        {
-            PieceColor thisColor = move.Piece.Owner;
-            if (!GetLegalMoves(thisColor).Contains(move))
-                return false;
+        //public bool MakeMove(Move move)
+        //{
+            //PieceColor thisColor = move.Piece.Owner;
+            //if (!GetLegalMoves(thisColor).Contains(move))
+            //    return false;
 
-            var tempBoard = (move.Piece.Owner == PieceColor.White) ? FlipBoard() : boardState;
-            var opposingColor = Piece.GetOppositeColor(move.Piece.Owner);
-            int rowMove = GetRowMoveAmount(move.Direction);
-            int colMove = GetColMoveAmount(move.Direction);
+            //var tempBoard = (move.Piece.Owner == PieceColor.White) ? FlipBoard() : boardState;
+            //var opposingColor = Piece.GetOppositeColor(move.Piece.Owner);
+            //int rowMove = GetRowMoveAmount(move.Direction);
+            //int colMove = GetColMoveAmount(move.Direction);
 
-            if (TileCanBeJumped(move.Piece.Row + rowMove, move.Piece.Col + colMove, opposingColor, boardState, move.Direction))
-            {
-                // move piece two times further
-                // capture opposing piece
-                // check that piece can't jump again
-                if (PieceCanJump(move.Piece, opposingColor, boardState))
-                {
-                    // get move from player to jump
-                }
-            }
-            else
-            {
-                // move piece
-            }
-            return true;
-        }
+            //if (TileCanBeJumped(move.Piece.Row + rowMove, move.Piece.Col + colMove, opposingColor, boardState, move.Direction))
+            //{
+            //    // move piece two times further
+            //    // capture opposing piece
+            //    // check that piece can't jump again
+            //    if (PieceCanJump(move.Piece, opposingColor, boardState))
+            //    {
+            //        // get move from player to jump
+            //    }
+            //}
+            //else
+            //{
+            //    // move piece
+            //}
+            //return true;
+        //}
 
         public List<Move> GetLegalMoves(PieceColor player)
         {
             PieceColor opposingColor = Piece.GetOppositeColor(player);
-            var checkBoard = (player == PieceColor.White) ? FlipBoard() : boardState;
+            var checkBoard = (player == PieceColor.White) ? FlipBoard() : this;
             var legalMoves = new List<Move>();
             for (int i = 0; i < BOARD_SIZE; i++)
             {
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    var piece = boardState[i, j];
+                    var piece = checkBoard.GetPiece(i, j);
                     if ((piece == null) || (piece.Owner == opposingColor))
                         continue;
-
-                    int row = piece.Row;
-                    int col = piece.Col;
-
-                    if (ForwardRightTileIsFree(row, col, opposingColor, checkBoard))
-                    {
-                        legalMoves.Add(new Move(piece, MoveDirection.ForwardRight));
-                    }
-                    if (ForwardLeftTileIsFree(row, col, opposingColor, checkBoard))
-                    {
-                        legalMoves.Add(new Move(piece, MoveDirection.ForwardLeft));
-                    }
-                    if (piece.IsKing)
-                    {
-                        if (BackLeftTileIsFree(row, col, opposingColor, checkBoard))
-                        {
-                            legalMoves.Add(new Move(piece, MoveDirection.BackwardLeft));
-                        }
-                        if (BackRightTileIsFree(row, col, opposingColor, checkBoard))
-                        {
-                            legalMoves.Add(new Move(piece, MoveDirection.BackwardRight));
-                        }
-                    }
+                    legalMoves.AddRange(new BoardMoveGenerator(checkBoard, piece.Row, piece.Col).Moves);
                 }
             }
             return legalMoves;
         }
 
-        private static bool ForwardRightTileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
+
+        public bool TileIsFree(int row, int col, MoveDirection direction)
         {
-            return TileIsFree(row + 1, col + 1, opposingColor, board)
-                || TileCanBeJumped(row + 1, col + 1, opposingColor, board, MoveDirection.ForwardRight)
-                ;
+            row += GetRowMoveAmount(direction);
+            col += GetColMoveAmount(direction);
+            return TileIsInBounds(row, col) && boardState[row, col] == null;
         }
 
-        private static bool ForwardLeftTileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
+        public bool TileIsOpposingColor(int row, int col, PieceColor opposingColor)
         {
-            return TileIsFree(row + 1, col - 1, opposingColor, board)
-                || TileCanBeJumped(row + 1, col - 1, opposingColor, board, MoveDirection.ForwardLeft)
-                ;
+            return (boardState[row, col] != null) && (boardState[row, col].Owner == opposingColor);
         }
 
-        private static bool BackLeftTileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
+        public static int GetRowMoveAmount(MoveDirection direction)
         {
-            return TileIsFree(row - 1, col + 1, opposingColor, board)
-                || TileCanBeJumped(row - 1, col + 1, opposingColor, board, MoveDirection.BackwardLeft)
-                ;
+            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.ForwardLeft) ? 1 : -1;
         }
 
-        private static bool BackRightTileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
+        public static int GetColMoveAmount(MoveDirection direction)
         {
-            return TileIsFree(row - 1, col - 1, opposingColor, board)
-                || TileCanBeJumped(row - 1, col - 1, opposingColor, board, MoveDirection.BackwardRight)
-                ;
-        }
-
-
-        private static bool TileIsFree(int row, int col, PieceColor opposingColor, Piece[,] board)
-        {
-            return TileIsInBounds(row, col) && board[row, col] == null;
-        }
-
-        private static bool TileCanBeJumped(int row, int col, PieceColor opposingColor, Piece[,] board, MoveDirection direction)
-        {
-            int rowMove = GetRowMoveAmount(direction);
-            int colMove = GetColMoveAmount(direction);
-            return TileIsOpposingColor(row, col, opposingColor, board) 
-                && TileIsFree(row + rowMove, col + colMove, opposingColor, board)
-                ;
-        }
-
-        private static bool TileIsOpposingColor(int row, int col, PieceColor opposingColor, Piece[,] board)
-        {
-            return (board[row, col].Owner == opposingColor);
+            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.BackwardLeft) ? 1 : -1;
         }
 
         private static bool TileIsInBounds(int row, int col)
@@ -201,42 +153,24 @@ namespace Checkers
                 ;
         }
 
-        private static bool PieceCanJump(Piece piece, PieceColor opposingColor, Piece[,] board)
+        /// <summary>
+        /// Returns a deep copy
+        /// of the current board
+        /// with flipped about the the x-axis.
+        /// </summary>
+        /// <returns></returns>
+        public Board FlipBoard()
         {
-            if (TileCanBeJumped(piece.Row + 1, piece.Col + 1, opposingColor, board, MoveDirection.ForwardRight)
-                || TileCanBeJumped(piece.Row + 1, piece.Col - 1, opposingColor, board, MoveDirection.ForwardLeft))
-                return true;
-            else if (piece.IsKing
-                && (TileCanBeJumped(piece.Row - 1, piece.Col - 1, opposingColor, board, MoveDirection.BackwardRight)
-                || TileCanBeJumped(piece.Row - 1, piece.Col + 1, opposingColor, board, MoveDirection.BackwardLeft)))
-                return true;
-            else
-                return false;
-        }
-
-        private static int GetRowMoveAmount(MoveDirection direction)
-        {
-            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.ForwardLeft) ? 1 : -1;
-        }
-
-        private static int GetColMoveAmount(MoveDirection direction)
-        {
-            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.BackwardLeft) ? 1 : -1;
-        }
-
-        public Piece[,] FlipBoard()
-        {
-            var reversedBoard = new Piece[BOARD_SIZE, BOARD_SIZE];
+            var reversedBoard = new Board();
 
             for(int i = 0; i < BOARD_SIZE; i++)
             {
                 int row = BOARD_SIZE - i - 1;
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    int col = BOARD_SIZE - j - 1;
-                    Piece pieceToCopy = boardState[row, col];
+                    Piece pieceToCopy = boardState[row, j];
                     if (pieceToCopy != null)
-                        reversedBoard[i, j] = new Piece(i, j, pieceToCopy.Owner); // Can't use copy constructor here since row/col is different
+                        reversedBoard.PlacePiece(pieceToCopy.Owner, i, j);
                 }
             }
 
