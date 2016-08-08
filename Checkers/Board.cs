@@ -122,7 +122,7 @@ namespace Checkers
                     if (useFlippedBoard)
                     {
                         foreach (var move in moves)
-                            piece.Row = BOARD_SIZE - piece.Row - 1; // must be flipped back along the x axis
+                            move.Piece.Row = BOARD_SIZE - piece.Row - 1; // must be flipped back along the x axis
                     }
                     legalMoves.AddRange(moves);
                 }
@@ -145,12 +145,12 @@ namespace Checkers
 
         public static int GetRowMoveAmount(MoveDirection direction)
         {
-            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.ForwardLeft) ? 1 : -1;
+            return (direction == MoveDirection.ForwardLeft || direction == MoveDirection.ForwardRight) ? 1 : -1;
         }
 
         public static int GetColMoveAmount(MoveDirection direction)
         {
-            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.BackwardLeft) ? 1 : -1;
+            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.BackwardRight) ? 1 : -1;
         }
 
         private static bool TileIsInBounds(int row, int col)

@@ -96,7 +96,7 @@ namespace CheckersTests
             //board.PlacePiece(PieceColor.White, Board.BOARD_SIZE - 4, 3);
             var blackMoves = board.GetLegalMoves(PieceColor.Black);
             Assert.AreEqual(1, blackMoves.Count);
-            var blackMove = new Move(board.GetPiece(Board.BOARD_SIZE - 1, 0), new List<MoveDirection> { MoveDirection.BackwardLeft });
+            var blackMove = new Move(board.GetPiece(Board.BOARD_SIZE - 1, 0), new List<MoveDirection> { MoveDirection.BackwardRight });
             Assert.AreEqual(blackMove, blackMoves[0]);
         }
     }
