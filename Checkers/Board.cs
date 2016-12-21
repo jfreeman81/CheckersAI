@@ -165,7 +165,7 @@ namespace Checkers
         /// <summary>
         /// Returns a deep copy
         /// of the current board
-        /// with flipped about the the x-axis.
+        /// flipped about the the x-axis.
         /// </summary>
         /// <returns></returns>
         public Board FlipBoard()

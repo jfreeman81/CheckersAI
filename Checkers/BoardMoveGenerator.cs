@@ -80,14 +80,14 @@ namespace Checkers
         {
             _moves = new List<Move>();
             var tmpMoves = new List<Move>();
-            GenerateJumps(Row, Col, new HashSet<Tuple<int, int>>(), new List<MoveDirection>(), tmpMoves);
+            GenerateJumps(Row, Col, new HashSet<Tile>(), new List<MoveDirection>(), tmpMoves);
             int maxDirectionCount = 0;
             foreach (var move in tmpMoves)
                 maxDirectionCount = Math.Max(maxDirectionCount, move.Direction.Count);
             _moves = tmpMoves.Where(m => m.Direction.Count == maxDirectionCount).ToList();
         }
 
-        private void GenerateJumps(int row, int col, HashSet<Tuple<int, int>> capturedTiles, List<MoveDirection> directions, List<Move> moves)
+        private void GenerateJumps(int row, int col, HashSet<Tile> capturedTiles, List<MoveDirection> directions, List<Move> moves)
         {
             if (TileCanBeJumped(row, col, MoveDirection.ForwardLeft) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.ForwardLeft)))
                 GenerateJumpsForDirection(row, col, capturedTiles, directions, moves, MoveDirection.ForwardLeft);
@@ -99,10 +99,10 @@ namespace Checkers
                 GenerateJumpsForDirection(row, col, capturedTiles, directions, moves, MoveDirection.BackwardRight);
         }
 
-        private void GenerateJumpsForDirection(int row, int col, HashSet<Tuple<int, int>> capturedTiles, List<MoveDirection> directions, List<Move> moves, MoveDirection direction)
+        private void GenerateJumpsForDirection(int row, int col, HashSet<Tile> capturedTiles, List<MoveDirection> directions, List<Move> moves, MoveDirection direction)
         {
             var forwardLeftTile = GetTileFromDirection(row, col, direction);
-            var tempCapturedTiles = new HashSet<Tuple<int, int>>(capturedTiles);
+            var tempCapturedTiles = new HashSet<Tile>(capturedTiles);
             tempCapturedTiles.Add(forwardLeftTile);
             var moveDirections = new List<MoveDirection>(directions);
             moveDirections.Add(direction);
@@ -117,9 +117,9 @@ namespace Checkers
                 moves.Add(new Move(Piece, moveDirections));
         }
 
-        private Tuple<int, int> GetTileFromDirection(int row, int col, MoveDirection direction)
+        private Tile GetTileFromDirection(int row, int col, MoveDirection direction)
         {
-            return new Tuple<int, int>(
+            return Tile.FromRowCol(
                 row + Board.GetRowMoveAmount(MoveDirection.ForwardLeft), 
                 col + Board.GetColMoveAmount(MoveDirection.ForwardLeft));
         }
@@ -179,4 +179,48 @@ namespace Checkers
         #endregion
 
     }
+
+    class Tile : IEquatable<Tile>
+    {
+        public int Row { get; set; }
+        public int Col { get; set; }
+
+        public Tile() { }
+        
+        private Tile(int row, int col)
+        {
+            Row = row;
+            Col = col;
+        }
+
+        public static Tile FromRowCol(int row, int col)
+        {
+            return new Tile(row, col);
+        }
+
+        public override bool Equals(object obj)
+        {
+            Tile other = obj as Tile;
+            return other != null
+                && Equals(other)
+                ;
+        }
+
+        public bool Equals(Tile other)
+        {
+            if (this == other)
+                return true;
+
+            return other != null
+                && Row == other.Row
+                && Col == other.Col
+                ;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Row * 23) ^ (Col * 31);
+        }
+    }
+
 }
