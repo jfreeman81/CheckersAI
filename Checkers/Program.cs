@@ -11,8 +11,6 @@ namespace Checkers
         static void Main(string[] args)
         {
             Game thisGame = new Game();
-            thisGame.Test();
-            thisGame.PrintBoard();
             Console.ReadLine();
         }
     }

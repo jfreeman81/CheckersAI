@@ -53,15 +53,5 @@ namespace Checkers
                 placePiece = !placePiece;
             }
         }
-
-        public void PrintBoard()
-        {
-            Board.Print();
-        }
-
-        public void Test()
-        {
-            var moves = Board.GetLegalMoves(PieceColor.Black);
-        }
     }
 }

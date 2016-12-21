@@ -53,30 +53,6 @@ namespace Checkers
             return boardState[row, col];
         }
 
-        public void Print()
-        {
-            for (int i = 0; i < BOARD_SIZE; i++)
-            {
-                for (int j = 0; j < BOARD_SIZE; j++)
-                {
-                    Piece tile = boardState[i, j];
-                    string tileRep = GetTileRepresentation(tile);
-                    Console.Write("{0,3}", tileRep);
-                }
-                Console.WriteLine();
-            }
-        }
-
-        private static string GetTileRepresentation(Piece piece)
-        {
-            if (piece == null)
-                return "-";
-            else if (piece.Owner == PieceColor.Black)
-                return piece.IsKing ? "B*" : "B";
-            else
-                return piece.IsKing ? "W*" : "W";
-        }
-
         //public bool MakeMove(Move move)
         //{
             //PieceColor thisColor = move.Piece.Owner;
@@ -109,16 +85,16 @@ namespace Checkers
         {
             PieceColor opposingColor = Piece.GetOppositeColor(player);
             bool useFlippedBoard = player == PieceColor.White;
-            var checkBoard = useFlippedBoard ? FlipBoard() : this;
+            Board boardToCheck = useFlippedBoard ? FlipBoard() : this;
             var legalMoves = new List<Move>();
             for (int i = 0; i < BOARD_SIZE; i++)
             {
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    var piece = checkBoard.GetPiece(i, j);
+                    var piece = boardToCheck.GetPiece(i, j);
                     if ((piece == null) || (piece.Owner == opposingColor))
                         continue;
-                    var moves = new BoardMoveGenerator(checkBoard, piece.Row, piece.Col).Moves;
+                    var moves = new BoardMoveGenerator(boardToCheck, piece.Row, piece.Col).Moves;
                     if (useFlippedBoard)
                     {
                         foreach (var move in moves)
