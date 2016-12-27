@@ -9,7 +9,7 @@ namespace Checkers
     public class BoardMoveGenerator
     {
 
-        private Board Board { get; set; }
+        private CheckerBoard Board { get; set; }
         private Piece Piece { get; set; }
         private int Row { get { return Piece.Row; } }
         private int Col { get { return Piece.Col; } }
@@ -37,7 +37,7 @@ namespace Checkers
         }
 
 
-        public BoardMoveGenerator(Board board, int row, int col)
+        public BoardMoveGenerator(CheckerBoard board, int row, int col)
         {
             Board = board;
             if (Board == null || Board.GetPiece(row, col) == null)
@@ -108,8 +108,8 @@ namespace Checkers
             moveDirections.Add(direction);
 
             // multiply by 2 since jumping moves 2 rows and two columns
-            int newRow = row + 2 * Board.GetRowMoveAmount(direction); 
-            int newCol = col + 2 * Board.GetColMoveAmount(direction);
+            int newRow = row + 2 * CheckerBoard.GetRowMoveAmount(direction); 
+            int newCol = col + 2 * CheckerBoard.GetColMoveAmount(direction);
 
             if (PieceCanJump(newRow, newCol))
                 GenerateJumps(newRow, newCol, tempCapturedTiles, moveDirections, moves);
@@ -120,8 +120,8 @@ namespace Checkers
         private Tile GetTileFromDirection(int row, int col, MoveDirection direction)
         {
             return Tile.FromRowCol(
-                row + Board.GetRowMoveAmount(MoveDirection.ForwardLeft), 
-                col + Board.GetColMoveAmount(MoveDirection.ForwardLeft));
+                row + CheckerBoard.GetRowMoveAmount(MoveDirection.ForwardLeft), 
+                col + CheckerBoard.GetColMoveAmount(MoveDirection.ForwardLeft));
         }
 
         #region Helper Methods
@@ -149,8 +149,8 @@ namespace Checkers
 
         public bool TileCanBeJumped(int row, int col, MoveDirection direction)
         {
-            int jumpRow = row + Board.GetRowMoveAmount(direction);
-            int jumpCol = col + Board.GetColMoveAmount(direction);
+            int jumpRow = row + CheckerBoard.GetRowMoveAmount(direction);
+            int jumpCol = col + CheckerBoard.GetColMoveAmount(direction);
             return Board.TileIsFree(jumpRow, jumpCol, direction)
                 && Board.TileIsOpposingColor(jumpRow, jumpCol, OpposingColor)
                 ;

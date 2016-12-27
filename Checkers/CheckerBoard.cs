@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Checkers
 {
-    public class Board
+    public class CheckerBoard
     {
-        public static readonly int BOARD_SIZE = 8;
+        public static readonly int SIZE = 8;
         public static readonly int PIECES_DEPTH = 3;
         private Piece[,] boardState { get; set; }
 
-        public Board()
+        public CheckerBoard()
         {
-            boardState = new Piece[BOARD_SIZE, BOARD_SIZE];
+            boardState = new Piece[SIZE, SIZE];
         }
 
         /// <summary>
@@ -25,11 +25,19 @@ namespace Checkers
         /// <param name="color">color of the piece</param>
         /// <param name="row">row the piece will be placed</param>
         /// <param name="col">column the piece will be placed</param>
-        public void PlacePiece(PieceColor color, int row, int col)
+        public void AddPiece(PieceColor color, int row, int col, bool isKing = false)
         {
-            if (!TileIsInBounds(row, col) || (boardState[row, col] != null))
-                throw new ArgumentException(String.Format("Error: Piece was attempted to be placed at invalid position Row: {0}, Col: {1}", row, col));
-            boardState[row, col] = new Piece(row, col, color);
+            var piece = new Piece(row, col, color);
+            piece.IsKing = isKing;
+            AddPiece(piece);
+        }
+
+        public void AddPiece(Piece piece)
+        {
+            //if (!TileIsInBounds(row, col) || (boardState[row, col] != null))
+            //    throw new ArgumentException(String.Format("Error: Piece was attempted to be placed at invalid position Row: {0}, Col: {1}", row, col));
+            var copyOfPiece = new Piece(piece);
+            boardState[copyOfPiece.Row, copyOfPiece.Col] = copyOfPiece;
         }
 
         /// <summary>
@@ -85,11 +93,11 @@ namespace Checkers
         {
             PieceColor opposingColor = Piece.GetOppositeColor(player);
             bool useFlippedBoard = player == PieceColor.White;
-            Board boardToCheck = useFlippedBoard ? FlipBoard() : this;
+            CheckerBoard boardToCheck = useFlippedBoard ? FlipBoard() : this;
             var legalMoves = new List<Move>();
-            for (int i = 0; i < BOARD_SIZE; i++)
+            for (int i = 0; i < SIZE; i++)
             {
-                for (int j = 0; j < BOARD_SIZE; j++)
+                for (int j = 0; j < SIZE; j++)
                 {
                     var piece = boardToCheck.GetPiece(i, j);
                     if ((piece == null) || (piece.Owner == opposingColor))
@@ -98,7 +106,7 @@ namespace Checkers
                     if (useFlippedBoard)
                     {
                         foreach (var move in moves)
-                            move.Piece.Row = BOARD_SIZE - piece.Row - 1; // must be flipped back along the x axis
+                            move.Piece.Row = SIZE - piece.Row - 1; // must be flipped back along the x axis
                     }
                     legalMoves.AddRange(moves);
                 }
@@ -132,9 +140,9 @@ namespace Checkers
         private static bool TileIsInBounds(int row, int col)
         {
             return row >= 0
-                && row < BOARD_SIZE
+                && row < SIZE
                 && col >= 0
-                && col < BOARD_SIZE
+                && col < SIZE
                 ;
         }
 
@@ -144,18 +152,18 @@ namespace Checkers
         /// flipped about the the x-axis.
         /// </summary>
         /// <returns></returns>
-        public Board FlipBoard()
+        public CheckerBoard FlipBoard()
         {
-            var reversedBoard = new Board();
+            var reversedBoard = new CheckerBoard();
 
-            for(int i = 0; i < BOARD_SIZE; i++)
+            for(int i = 0; i < SIZE; i++)
             {
-                int row = BOARD_SIZE - i - 1;
-                for (int j = 0; j < BOARD_SIZE; j++)
+                int row = SIZE - i - 1;
+                for (int j = 0; j < SIZE; j++)
                 {
                     Piece pieceToCopy = boardState[row, j];
                     if (pieceToCopy != null)
-                        reversedBoard.PlacePiece(pieceToCopy.Owner, i, j);
+                        reversedBoard.AddPiece(pieceToCopy.Owner, i, j);
                 }
             }
 

@@ -43,7 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Board.cs" />
+    <Compile Include="BoardUIDisplay.cs" />
+    <Compile Include="CheckerBoard.cs" />
     <Compile Include="BoardMoveGenerator.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Move.cs" />

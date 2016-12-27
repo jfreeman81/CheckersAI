@@ -6,38 +6,58 @@ using System.Threading.Tasks;
 
 namespace Checkers
 {
-    public interface BoardUIDisplay
+    public interface IBoardUIDisplay
     {
-        void UpdateDisplay(Board board);
+        void UpdateDisplay(CheckerBoard board);
     }
 
-    public class BoardCommandLineUIDisplay : BoardUIDisplay
+    public class BoardPlainTextUIDisplay : IBoardUIDisplay
     {
 
-        public void UpdateDisplay(Board board)
+        private ITextDisplay _display;
+
+        public BoardPlainTextUIDisplay(ITextDisplay display)
         {
-            for (int row = 0; row < Board.BOARD_SIZE; row++)
+            _display = display;
+        }
+
+        public void UpdateDisplay(CheckerBoard board)
+        {
+            for (int row = 0; row < CheckerBoard.SIZE; row++)
             {
-                for (int col = 0; col < Board.BOARD_SIZE; col++)
+                for (int col = 0; col < CheckerBoard.SIZE; col++)
                 {
                     Piece tile = board.GetPiece(row, col);
-                    string tileRep = GetTileDisplayRepresentation(tile);
-                    Console.Write("{0,3}", tileRep);
+                    string tileRep = GetTileDisplayRepresentationWithPadding(tile);
+                    _display.DisplayText(tileRep);
                 }
-                Console.WriteLine();
+                _display.DisplayText($"{Environment.NewLine}");
             }
         }
 
-        private static string GetTileDisplayRepresentation(Piece piece)
+        private static string GetTileDisplayRepresentationWithPadding(Piece piece)
         {
             if (piece == null)
-                return "-";
+                return "-  ";
             else if (piece.Owner == PieceColor.Black)
-                return piece.IsKing ? "B*" : "B";
+                return piece.IsKing ? "B* " : "B  ";
             else
-                return piece.IsKing ? "W*" : "W";
+                return piece.IsKing ? "W* " : "W  ";
         }
 
+    }
+
+    public interface ITextDisplay
+    {
+        void DisplayText(string text);
+    }
+
+    public class CommandLineDisplay : ITextDisplay
+    {
+        public void DisplayText(string text)
+        {
+            Console.WriteLine(text);
+        }
     }
 
 }

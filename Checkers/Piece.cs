@@ -20,7 +20,17 @@ namespace Checkers
             this.Owner = owner;
         }
 
-        public Piece(Piece copy) : this(copy.Row, copy.Col, copy.Owner) {}
+        public static Piece AsKing(int row, int col, PieceColor owner)
+        {
+            var piece = new Piece(row, col, owner);
+            piece.IsKing = true;
+            return piece;
+        }
+
+        public Piece(Piece copy) : this(copy.Row, copy.Col, copy.Owner)
+        {
+            IsKing = copy.IsKing;
+        }
 
         public static PieceColor GetOppositeColor(PieceColor color)
         {
