@@ -49,6 +49,8 @@
     <Compile Include="Game.cs" />
     <Compile Include="Move.cs" />
     <Compile Include="MoveDirection.cs" />
+    <Compile Include="MoveMaker.cs" />
+    <Compile Include="MoveUtil.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="PieceColor.cs" />
     <Compile Include="Program.cs" />

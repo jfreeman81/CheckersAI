@@ -10,7 +10,7 @@ namespace Checkers
     {
 
         private CheckerBoard Board { get; set; }
-        private Piece Piece { get; set; }
+        private CheckerPiece Piece { get; set; }
         private int Row { get { return Piece.Row; } }
         private int Col { get { return Piece.Col; } }
         private PieceColor? _opposingColor;
@@ -19,7 +19,7 @@ namespace Checkers
             get
             {
                 if (_opposingColor == null)
-                    _opposingColor = Piece.GetOppositeColor(Piece.Owner);
+                    _opposingColor = CheckerPiece.GetOppositeColor(Piece.Owner);
                 return _opposingColor.Value;
             }
         }
@@ -58,17 +58,17 @@ namespace Checkers
                 {
                     _moves.Add(new Move(Piece, new List<MoveDirection> { MoveDirection.ForwardRight }));
                 }
-                if (ForwardLeftTileIsFree(Row, Col))
+                if (ForwardLeftTileInDirectionIsFree(Row, Col))
                 {
                     _moves.Add(new Move(Piece, new List<MoveDirection> { MoveDirection.ForwardLeft }));
                 }
                 if (Piece.IsKing)
                 {
-                    if (BackLeftTileIsFree(Row, Col))
+                    if (BackLeftTileInDirectionIsFree(Row, Col))
                     {
                         _moves.Add(new Move(Piece, new List<MoveDirection> { MoveDirection.BackwardLeft }));
                     }
-                    if (BackRightTileIsFree(Row, Col))
+                    if (BackRightTileInDirectionIsFree(Row, Col))
                     {
                         _moves.Add(new Move(Piece, new List<MoveDirection> { MoveDirection.BackwardRight }));
                     }
@@ -89,13 +89,13 @@ namespace Checkers
 
         private void GenerateJumps(int row, int col, HashSet<Tile> capturedTiles, List<MoveDirection> directions, List<Move> moves)
         {
-            if (TileCanBeJumped(row, col, MoveDirection.ForwardLeft) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.ForwardLeft)))
+            if (TileCanBeJumpedInDirection(row, col, MoveDirection.ForwardLeft) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.ForwardLeft)))
                 GenerateJumpsForDirection(row, col, capturedTiles, directions, moves, MoveDirection.ForwardLeft);
-            if (TileCanBeJumped(row, col, MoveDirection.ForwardRight) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.ForwardRight)))
+            if (TileCanBeJumpedInDirection(row, col, MoveDirection.ForwardRight) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.ForwardRight)))
                 GenerateJumpsForDirection(row, col, capturedTiles, directions, moves, MoveDirection.ForwardRight);
-            if (TileCanBeJumped(row, col, MoveDirection.BackwardLeft) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.BackwardLeft)))
+            if (TileCanBeJumpedInDirection(row, col, MoveDirection.BackwardLeft) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.BackwardLeft)))
                 GenerateJumpsForDirection(row, col, capturedTiles, directions, moves, MoveDirection.BackwardLeft);
-            if (TileCanBeJumped(row, col, MoveDirection.BackwardRight) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.BackwardRight)))
+            if (TileCanBeJumpedInDirection(row, col, MoveDirection.BackwardRight) && !capturedTiles.Contains(GetTileFromDirection(row, col, MoveDirection.BackwardRight)))
                 GenerateJumpsForDirection(row, col, capturedTiles, directions, moves, MoveDirection.BackwardRight);
         }
 
@@ -107,9 +107,10 @@ namespace Checkers
             var moveDirections = new List<MoveDirection>(directions);
             moveDirections.Add(direction);
 
-            // multiply by 2 since jumping moves 2 rows and two columns
-            int newRow = row + 2 * CheckerBoard.GetRowMoveAmount(direction); 
-            int newCol = col + 2 * CheckerBoard.GetColMoveAmount(direction);
+            // Get the movement amount and then multiply by two since a jump moves
+            // twice as far.
+            int newRow = row + 2 * MoveUtil.GetRowMoveAmountByColor(Piece.Owner, direction);
+            int newCol = col + 2 * MoveUtil.GetColMoveAmount(direction);
 
             if (PieceCanJump(newRow, newCol))
                 GenerateJumps(newRow, newCol, tempCapturedTiles, moveDirections, moves);
@@ -120,8 +121,8 @@ namespace Checkers
         private Tile GetTileFromDirection(int row, int col, MoveDirection direction)
         {
             return Tile.FromRowCol(
-                row + CheckerBoard.GetRowMoveAmount(MoveDirection.ForwardLeft), 
-                col + CheckerBoard.GetColMoveAmount(MoveDirection.ForwardLeft));
+                row + MoveUtil.GetRowMoveAmountByColor(Piece.Owner, MoveDirection.ForwardLeft), 
+                col + MoveUtil.GetColMoveAmount(MoveDirection.ForwardLeft));
         }
 
         #region Helper Methods
@@ -135,45 +136,55 @@ namespace Checkers
 
         private bool PieceCanJumpForward(int row, int col)
         {
-            return TileCanBeJumped(row, col, MoveDirection.ForwardRight)
-                || TileCanBeJumped(row, col, MoveDirection.ForwardLeft)
+            return TileCanBeJumpedInDirection(row, col, MoveDirection.ForwardRight)
+                || TileCanBeJumpedInDirection(row, col, MoveDirection.ForwardLeft)
                 ;
         }
 
         private bool PieceCanJumpBack(int row, int col)
         {
-            return TileCanBeJumped(row, col, MoveDirection.BackwardRight)
-                || TileCanBeJumped(row, col, MoveDirection.BackwardLeft)
+            return TileCanBeJumpedInDirection(row, col, MoveDirection.BackwardRight)
+                || TileCanBeJumpedInDirection(row, col, MoveDirection.BackwardLeft)
                 ;
         }
 
-        public bool TileCanBeJumped(int row, int col, MoveDirection direction)
+        public bool TileCanBeJumpedInDirection(int row, int col, MoveDirection direction)
         {
-            int jumpRow = row + CheckerBoard.GetRowMoveAmount(direction);
-            int jumpCol = col + CheckerBoard.GetColMoveAmount(direction);
-            return Board.TileIsFree(jumpRow, jumpCol, direction)
+            int jumpRow = row + MoveUtil.GetRowMoveAmountByColor(Piece.Owner, direction);
+            int jumpCol = col + MoveUtil.GetColMoveAmount(direction);
+            return CheckerBoard.TileIsInBounds(jumpRow, jumpCol)
+                && TileInDirectionIsFree(jumpRow, jumpCol, direction)
                 && Board.TileIsOpposingColor(jumpRow, jumpCol, OpposingColor)
+                ;
+        }
+
+        public bool TileInDirectionIsFree(int row, int col, MoveDirection direction)
+        {
+            int newRow = row + MoveUtil.GetRowMoveAmountByColor(Piece.Owner, direction);
+            int newCol = col + MoveUtil.GetColMoveAmount(direction);
+            return CheckerBoard.TileIsInBounds(newRow, newCol)
+                && Board.GetPiece(newRow, newCol) == null
                 ;
         }
 
         public bool ForwardRightTileIsFree(int row, int col)
         {
-            return Board.TileIsFree(row, col, MoveDirection.ForwardRight);
+            return TileInDirectionIsFree(row, col, MoveDirection.ForwardRight);
         }
 
-        public bool ForwardLeftTileIsFree(int row, int col)
+        public bool ForwardLeftTileInDirectionIsFree(int row, int col)
         {
-            return Board.TileIsFree(row, col, MoveDirection.ForwardLeft);
+            return TileInDirectionIsFree(row, col, MoveDirection.ForwardLeft);
         }
 
-        public bool BackLeftTileIsFree(int row, int col)
+        public bool BackLeftTileInDirectionIsFree(int row, int col)
         {
-            return Board.TileIsFree(row, col, MoveDirection.BackwardLeft);
+            return TileInDirectionIsFree(row, col, MoveDirection.BackwardLeft);
         }
 
-        public bool BackRightTileIsFree(int row, int col)
+        public bool BackRightTileInDirectionIsFree(int row, int col)
         {
-            return Board.TileIsFree(row, col, MoveDirection.BackwardRight);
+            return TileInDirectionIsFree(row, col, MoveDirection.BackwardRight);
         }
 
         #endregion

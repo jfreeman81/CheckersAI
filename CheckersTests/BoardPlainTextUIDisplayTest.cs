@@ -50,8 +50,8 @@ namespace CheckersTests
         public void TestDisplayKingsOnLeftSide()
         {
             var board = new CheckerBoard();
-            var whiteKing = Piece.AsKing(0, 0, PieceColor.White);
-            var blackKing = Piece.AsKing(1, 1, PieceColor.Black);
+            var whiteKing = CheckerPiece.AsKing(0, 0, PieceColor.White);
+            var blackKing = CheckerPiece.AsKing(1, 1, PieceColor.Black);
             board.AddPiece(whiteKing);
             board.AddPiece(blackKing);
 
@@ -73,8 +73,8 @@ namespace CheckersTests
         public void TestDisplayKingsOnRightSide()
         {
             var board = new CheckerBoard();
-            var whiteKing = Piece.AsKing(0, CheckerBoard.SIZE - 1, PieceColor.White);
-            var blackKing = Piece.AsKing(1, CheckerBoard.SIZE - 1, PieceColor.Black);
+            var whiteKing = CheckerPiece.AsKing(0, CheckerBoard.SIZE - 1, PieceColor.White);
+            var blackKing = CheckerPiece.AsKing(1, CheckerBoard.SIZE - 1, PieceColor.Black);
             board.AddPiece(whiteKing);
             board.AddPiece(blackKing);
 

@@ -57,11 +57,31 @@ namespace CheckersTests
 
         /// <summary>
         /// board setup:
+        /// -  -  -  
+        /// -  W  -  
+        /// W  -  -
+        /// </summary>
+        [TestMethod]
+        public void TestLegalJumpsWontJumpOverOwnPiece()
+        {
+            var board = new CheckerBoard();
+            board.AddPiece(PieceColor.White, CheckerBoard.SIZE - 1, 0);
+            board.AddPiece(PieceColor.White, CheckerBoard.SIZE - 2, 1); // One below and to the right
+            var whiteMoves = board.GetLegalMoves(PieceColor.White);
+            Assert.AreEqual(2, whiteMoves.Count);
+            var moveForwardLeft = new Move(new CheckerPiece(board.GetPiece(CheckerBoard.SIZE - 2, 1)), MoveDirection.ForwardLeft);
+            var moveForwardRight = new Move(new CheckerPiece(board.GetPiece(CheckerBoard.SIZE - 2, 1)), MoveDirection.ForwardRight);
+            Assert.IsTrue(whiteMoves.Contains(moveForwardLeft));
+            Assert.IsTrue(whiteMoves.Contains(moveForwardRight));
+        }
+
+        /// <summary>
+        /// board setup:
         /// -  -  -  -  -  -  -
         /// -  -  -  -  -  B  -
         /// -  -  -  -  -  -  -
         /// -  B  -  B  -  -  -
-        /// -  -  W  -  -  -  -
+        /// -  -  W  -
         /// </summary>
         [TestMethod]
         public void TestLongestJump()

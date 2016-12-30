@@ -10,11 +10,11 @@ namespace Checkers
     {
         public static readonly int SIZE = 8;
         public static readonly int PIECES_DEPTH = 3;
-        private Piece[,] boardState { get; set; }
+        private CheckerPiece[,] boardState { get; set; }
 
         public CheckerBoard()
         {
-            boardState = new Piece[SIZE, SIZE];
+            boardState = new CheckerPiece[SIZE, SIZE];
         }
 
         /// <summary>
@@ -27,17 +27,22 @@ namespace Checkers
         /// <param name="col">column the piece will be placed</param>
         public void AddPiece(PieceColor color, int row, int col, bool isKing = false)
         {
-            var piece = new Piece(row, col, color);
+            var piece = new CheckerPiece(row, col, color);
             piece.IsKing = isKing;
             AddPiece(piece);
         }
 
-        public void AddPiece(Piece piece)
+        public void AddPiece(CheckerPiece piece)
         {
             //if (!TileIsInBounds(row, col) || (boardState[row, col] != null))
             //    throw new ArgumentException(String.Format("Error: Piece was attempted to be placed at invalid position Row: {0}, Col: {1}", row, col));
-            var copyOfPiece = new Piece(piece);
+            var copyOfPiece = new CheckerPiece(piece);
             boardState[copyOfPiece.Row, copyOfPiece.Col] = copyOfPiece;
+        }
+
+        public void RemovePiece(CheckerPiece piece)
+        {
+            RemovePiece(piece.Row, piece.Col);
         }
 
         /// <summary>
@@ -54,7 +59,7 @@ namespace Checkers
             boardState[row, col] = null;
         }
 
-        public Piece GetPiece(int row, int col)
+        public CheckerPiece GetPiece(int row, int col)
         {
             if (!TileIsInBounds(row, col))
                 throw new ArgumentException("Tile position is out of bounds.");
@@ -91,9 +96,8 @@ namespace Checkers
 
         public List<Move> GetLegalMoves(PieceColor player)
         {
-            PieceColor opposingColor = Piece.GetOppositeColor(player);
-            bool useFlippedBoard = player == PieceColor.White;
-            CheckerBoard boardToCheck = useFlippedBoard ? FlipBoard() : this;
+            PieceColor opposingColor = CheckerPiece.GetOppositeColor(player);
+            CheckerBoard boardToCheck = this;
             var legalMoves = new List<Move>();
             for (int i = 0; i < SIZE; i++)
             {
@@ -103,23 +107,10 @@ namespace Checkers
                     if ((piece == null) || (piece.Owner == opposingColor))
                         continue;
                     var moves = new BoardMoveGenerator(boardToCheck, piece.Row, piece.Col).Moves;
-                    if (useFlippedBoard)
-                    {
-                        foreach (var move in moves)
-                            move.Piece.Row = SIZE - piece.Row - 1; // must be flipped back along the x axis
-                    }
                     legalMoves.AddRange(moves);
                 }
             }
             return legalMoves;
-        }
-
-
-        public bool TileIsFree(int row, int col, MoveDirection direction)
-        {
-            row += GetRowMoveAmount(direction);
-            col += GetColMoveAmount(direction);
-            return TileIsInBounds(row, col) && boardState[row, col] == null;
         }
 
         public bool TileIsOpposingColor(int row, int col, PieceColor opposingColor)
@@ -127,17 +118,7 @@ namespace Checkers
             return (boardState[row, col] != null) && (boardState[row, col].Owner == opposingColor);
         }
 
-        public static int GetRowMoveAmount(MoveDirection direction)
-        {
-            return (direction == MoveDirection.ForwardLeft || direction == MoveDirection.ForwardRight) ? 1 : -1;
-        }
-
-        public static int GetColMoveAmount(MoveDirection direction)
-        {
-            return (direction == MoveDirection.ForwardRight || direction == MoveDirection.BackwardRight) ? 1 : -1;
-        }
-
-        private static bool TileIsInBounds(int row, int col)
+        public static bool TileIsInBounds(int row, int col)
         {
             return row >= 0
                 && row < SIZE
@@ -161,7 +142,7 @@ namespace Checkers
                 int row = SIZE - i - 1;
                 for (int j = 0; j < SIZE; j++)
                 {
-                    Piece pieceToCopy = boardState[row, j];
+                    CheckerPiece pieceToCopy = boardState[row, j];
                     if (pieceToCopy != null)
                         reversedBoard.AddPiece(pieceToCopy.Owner, i, j);
                 }

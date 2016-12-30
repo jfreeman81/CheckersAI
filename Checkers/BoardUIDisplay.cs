@@ -27,7 +27,7 @@ namespace Checkers
             {
                 for (int col = 0; col < CheckerBoard.SIZE; col++)
                 {
-                    Piece tile = board.GetPiece(row, col);
+                    CheckerPiece tile = board.GetPiece(row, col);
                     string tileRep = GetTileDisplayRepresentationWithPadding(tile);
                     _display.DisplayText(tileRep);
                 }
@@ -35,7 +35,7 @@ namespace Checkers
             }
         }
 
-        private static string GetTileDisplayRepresentationWithPadding(Piece piece)
+        private static string GetTileDisplayRepresentationWithPadding(CheckerPiece piece)
         {
             if (piece == null)
                 return "-  ";

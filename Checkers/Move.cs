@@ -8,10 +8,16 @@ namespace Checkers
 {
     public class Move
     {
-        public Piece Piece { get; set; }
+        public CheckerPiece Piece { get; set; }
         public IList<MoveDirection> Direction { get; set; }
 
-        public Move(Piece piece, IEnumerable<MoveDirection> direction)
+        public Move(CheckerPiece piece, MoveDirection direction)
+        {
+            this.Piece = piece;
+            this.Direction = new List<MoveDirection> { direction };
+        }
+
+        public Move(CheckerPiece piece, IEnumerable<MoveDirection> direction)
         {
             this.Piece = piece;
             this.Direction = direction.ToList();

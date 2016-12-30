@@ -6,28 +6,28 @@ using System.Threading.Tasks;
 
 namespace Checkers
 {
-    public class Piece
+    public class CheckerPiece
     {
         public PieceColor Owner;
         public bool IsKing = false;
         public int Row;
         public int Col;
 
-        public Piece(int row, int col, PieceColor owner)
+        public CheckerPiece(int row, int col, PieceColor owner)
         {
             this.Row = row;
             this.Col = col;
             this.Owner = owner;
         }
 
-        public static Piece AsKing(int row, int col, PieceColor owner)
+        public static CheckerPiece AsKing(int row, int col, PieceColor owner)
         {
-            var piece = new Piece(row, col, owner);
+            var piece = new CheckerPiece(row, col, owner);
             piece.IsKing = true;
             return piece;
         }
 
-        public Piece(Piece copy) : this(copy.Row, copy.Col, copy.Owner)
+        public CheckerPiece(CheckerPiece copy) : this(copy.Row, copy.Col, copy.Owner)
         {
             IsKing = copy.IsKing;
         }
@@ -39,7 +39,7 @@ namespace Checkers
 
         public override bool Equals(object obj)
         {
-            var piece = obj as Piece;
+            var piece = obj as CheckerPiece;
             return piece != null
                 && this.Row == piece.Row
                 && this.Col == piece.Col

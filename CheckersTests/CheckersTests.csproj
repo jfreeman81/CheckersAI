@@ -54,6 +54,7 @@
     <Compile Include="CheckerBoardTests.cs" />
     <Compile Include="LegalMovesTests.cs" />
     <Compile Include="Mocks\MockTextDisplay.cs" />
+    <Compile Include="MoveMakerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
