@@ -48,5 +48,10 @@ namespace Checkers
                 ;
         }
 
+        public override int GetHashCode()
+        {
+            return ((int)Owner * 37) ^ (Row * 51) ^ (Col * 71) ^ (IsKing ? 1 : 0);
+        }
+
     }
 }
